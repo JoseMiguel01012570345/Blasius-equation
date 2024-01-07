@@ -4,7 +4,31 @@ from sympy import symbols , diff , sqrt ,integrate
 v=1/(100*mt.pi)
 alpha=0.33205
 beta=1.72078
-            
+ 
+def f_vector(x0,y0,U):
+    
+    f=None
+    vector=[]
+    x,y=symbols('x y')
+    
+    if alpha != 0:
+        
+        f = ( alpha * ( y**2 ) * U )/( 2 * v * x )
+    else :
+        f = y * sqrt( U / (v * x) ) - beta
+    
+    
+    f1=diff(f,x,y)
+    f2=diff(f,x,2,y,2)
+    f3=diff(f,x,3,y,3)
+    
+    vector.append(f.subs({x:x0,y:y0}))
+    vector.append(f1.subs({x:x0,y:y0}))
+    vector.append(f2.subs({x:x0,y:y0}))
+    vector.append(f3.subs({x:x0,y:y0}))
+    
+    return vector
+
 def mass_continuity(x0,y0,U,epsilon): # du/dx + dv/dy = 0
     
     x,y=symbols("x y")
