@@ -61,7 +61,6 @@ class engine:
             tf.keras.layers.Dense(4, activation=self.mexican_hat), # add an extra layer
             tf.keras.layers.Dense(4, activation=self.mexican_hat), # add an extra layer
             tf.keras.layers.Dense(4, activation=self.mexican_hat), # add an extra layer
-            tf.keras.layers.Dense(4, activation=self.mexican_hat), # add an extra layer
             tf.keras.layers.Dense(4, activation=self.mexican_hat)
             ])
         
@@ -83,10 +82,6 @@ class engine:
             model.compile(loss= lambda y_true , y_pred: self.blasius_equation(y_pred,self,Nf=len(X_train)+len(X_val)+len(Y_train)+len(Y_val)),
                         optimizer=optimizer,
                         metrics=["accuracy"])
-
-
-            X_train = tf.constant(X_train)
-            Y_train = tf.constant(Y_train)
  
             # Fit the model
             history = model.fit(X_train, Y_train,
