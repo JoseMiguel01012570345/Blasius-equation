@@ -3,7 +3,6 @@ import tensorflow as tf
 import random
 import boundary_conditions as bc
 import time
-import numpy as np
 class data:
     
     train_data,val_data=[],[]
@@ -22,30 +21,69 @@ class data:
         # Assume X and Y are your features and labels
         X_train, X_val, Y_train, Y_val =[],[],[],[]
         
-        print ("train_data: ",self.train_data.shape)
+        length=len(self.train_data)
         
-        for i in self.train_data:
+        for i in range(int( len(self.train_data) * 0.8 )):
             
             numb=random.randint(0,len(self.train_data)-1)
-
-            # Compute the difference between the tensors
-            X_train =  tf.sets.difference(self.train_data,self.train_data[numb])
-            Y_train =  tf.sets.difference(self.val_data,self.val_data[numb])
             
-            self.train_data = X_train
-            self.val_data   = Y_train
+            sympy_float_X = Float(self.train_data[numb][0])
+            sympy_float_Y = Float(self.train_data[numb][1])
+            
+            # Convert the SymPy Float to a native Python float
+            native_float_x = float(sympy_float_X)
+            native_float_y = float(sympy_float_Y)
+            
+            X_train.append([native_float_x,native_float_y])
+            
+            #-----------------------------------------------------
+            f_list=self.val_data[numb]
+            # ----------
+            sympy_float_f = Float(f_list[0])
+            sympy_float_f1 = Float(f_list[1])
+            sympy_float_f2 = Float(f_list[2])
+            sympy_float_f3 = Float(f_list[3])
+                    
+                    # Convert the SymPy Float to a native Python float
+            native_float_f  = float(sympy_float_f)
+            native_float_f1 = float(sympy_float_f1)
+            native_float_f2 = float(sympy_float_f2)
+            native_float_f3 = float(sympy_float_f3)
+            
+            Y_train.append([native_float_f,native_float_f1,native_float_f2,native_float_f3])
+            
+            self.train_data.pop(numb)
+            self.val_data.pop(numb)
         
         for i in range(len(self.train_data)):
             
-            numb=random.randint (0,len(self.train_data)-1)
-
-            X_val =  tf.sets.difference(self.val_data,self.val_data[numb])
-            Y_val =  tf.sets.difference(self.val_data,self.val_data[numb])
+            numb=random.randint(0,len(self.train_data)-1)
             
-            self.val_data = X_val
-            self.val_data = Y_val
-        
-        return X_train, X_val, Y_train, Y_val
+            sympy_float_X = Float(self.train_data[numb][0])
+            sympy_float_Y = Float(self.train_data[numb][1])
+            
+            native_float_x = float(sympy_float_X)
+            native_float_y = float(sympy_float_Y)
+            
+            X_val.append([native_float_x,native_float_y])
+            
+            #-----------------------------------------------------
+            f_list=self.val_data[numb]
+            # ----------
+            sympy_float_f = Float(f_list[0])
+            sympy_float_f1 = Float(f_list[1])
+            sympy_float_f2 = Float(f_list[2])
+            sympy_float_f3 = Float(f_list[3])
+                    
+                    # Convert the SymPy Float to a native Python float
+            native_float_f  = float(sympy_float_f)
+            native_float_f1 = float(sympy_float_f1)
+            native_float_f2 = float(sympy_float_f2)
+            native_float_f3 = float(sympy_float_f3)
+            
+            Y_val.append([native_float_f,native_float_f1,native_float_f2,native_float_f3])
+                
+        return X_train , X_val , Y_train , Y_val ,length
     
     def generate_data(self,no_data):
         
@@ -57,13 +95,14 @@ class data:
         boundary_x=start_value
         boundary_y=start_value
         
+        
         hyper_parameters_start_values=0
         
         rho=hyper_parameters_start_values
         U=hyper_parameters_start_values
         
-        query_data=tf.Variable([])
-        f_data=tf.Variable([])
+        query_data=[]
+        f_data=[]
         
         # clean terminal
         import os
@@ -100,41 +139,10 @@ class data:
                 
             if bc.mass_continuity(x0=boundary_x,y0=boundary_y,U=U,epsilon=epsilon) and \
                bc.x_momentum(x0=boundary_x,y0=boundary_y,U=U,rho=rho,epsilon=epsilon): 
-                                
-                    # Create a SymPy Float
-                    sympy_float_X = Float(boundary_x)
 
-                    sympy_float_Y = Float(boundary_y)
-                    # Convert the SymPy Float to a native Python float
-                    native_float_x = float(sympy_float_X)
-                    native_float_y = float(sympy_float_X)
-
-                    # Now you can convert the native Python float to a TensorFlow Tensor
-                    tensor_x = tf.constant(native_float_x)
-                    tensor_y = tf.constant(native_float_y)
+                    query_data.append([boundary_x,boundary_y])
                     
-                    # -----------
-                    f_list=bc.f_vector(x0=boundary_x, y0=boundary_y, U=U)
-                    # ----------
-                    sympy_float_f = Float(f_list[0])
-                    sympy_float_f1 = Float(f_list[1])
-                    sympy_float_f2 = Float(f_list[2])
-                    sympy_float_f3 = Float(f_list[3])
-                    
-                    # Convert the SymPy Float to a native Python float
-                    native_float_f = float(sympy_float_f)
-                    native_float_f1 = float(sympy_float_f1)
-                    native_float_f2 = float(sympy_float_f2)
-                    native_float_f3 = float(sympy_float_f3)
-                    # Now you can convert the native Python float to a TensorFlow Tensor
-                    tensor_f = tf.constant(native_float_f)
-                    tensor_f1 = tf.constant(native_float_f1)
-                    tensor_f2 = tf.constant(native_float_f2)
-                    tensor_f3 = tf.constant(native_float_f3)
-                    
-                    query_data = tf.concat([query_data, [tensor_x,tensor_y]], axis=0)
-                    
-                    f_data =  tf.concat([f_data, [tensor_f,tensor_f1,tensor_f2,tensor_f3] ], axis=0)
+                    f_data.append(bc.f_vector(x0=boundary_x,y0=boundary_y,U=U))
         
             count +=1            
     
